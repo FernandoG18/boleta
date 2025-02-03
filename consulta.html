@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta de Boletas</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Consulta de Boletas Guardadas</h1>
+        <div id="boletas-list"></div>
+        <button onclick="window.location.href='trabajoempresa.html'">Volver a la página principal</button>
+    </div>
+
+    <script>
+        // Al cargar la página, obtenemos las boletas guardadas
+        window.onload = function() {
+            // Obtener datos del localStorage
+            const boletas = JSON.parse(localStorage.getItem('boletas')) || [];
+
+            // Mostrar las boletas en el HTML
+            const boletasList = document.getElementById('boletas-list');
+            if (boletas.length > 0) {
+                boletas.forEach(function(boleta, index) {
+                    const boletaDiv = document.createElement('div');
+                    boletaDiv.innerHTML = `
+                        <h3>Boleta #${index + 1}</h3>
+                        <p><strong>Fecha:</strong> ${boleta.fecha}</p>
+                        <p><strong>Hora:</strong> ${boleta.hora}</p>
+                        <p><strong>Servicio:</strong> ${boleta.servicio}</p>
+                        <p><strong>Empresa:</strong> ${boleta.empresa}</p>
+                        <p><strong>Cliente:</strong> ${boleta.cliente}</p>
+                        <p><strong>Código:</strong> ${boleta.codigo}</p>
+                        <p><strong>Monto Pagado:</strong> S/ ${boleta.monto}</p>
+                        <p><strong>Comision:</strong> S/ ${boleta.comision}</p>
+                        <p><strong>Total:</strong> S/ ${boleta.total}</p>
+                        <button onclick="eliminarBoleta(${index})">Eliminar</button>
+                        <hr>
+                    `;
+                    boletasList.appendChild(boletaDiv);
+                });
+            } else {
+                boletasList.innerHTML = '<p>No hay boletas guardadas.</p>';
+            }
+        };
+
+        // Función para eliminar una boleta
+        function eliminarBoleta(index) {
+            // Obtener las boletas del localStorage
+            let boletas = JSON.parse(localStorage.getItem('boletas')) || [];
+
+            // Eliminar la boleta seleccionada
+            boletas.splice(index, 1);
+
+            // Guardar las boletas actualizadas en el localStorage
+            localStorage.setItem('boletas', JSON.stringify(boletas));
+
+            // Recargar la página para actualizar la vista
+            window.location.reload();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,349 @@
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #000000;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 20px;
+    margin: 0%;
+    
+}
+
+.main-content {
+    display: flex;
+    justify-content: space-between;
+}
+
+.form-section {
+    flex: 3;
+}
+
+.field {
+    
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.field label {
+    flex: 1;
+    font-weight: bold; /* Resalta las etiquetas */
+    
+    
+}
+
+.field input,
+.field select,
+.field textarea {
+    flex: 2;
+    padding: 5px;
+    font-size: 16px;
+    
+}
+.fields {
+    display: flex;
+    justify-content: space-between; /* Distribuye los elementos */
+    align-items: center; /* Alinea verticalmente */
+    gap: 16px; /* Espaciado entre los campos */
+    font-family: Arial, sans-serif; /* Fuente general */
+    font-size: 16px; /* Tamaño del texto */
+    margin: 16px auto; /* Centrar horizontalmente */
+    max-width: 500px; /* Limitar el ancho total */
+}
+
+.fields label {
+    font-weight: bold; /* Resalta las etiquetas */
+    color: #333; /* Color del texto */
+    margin-right: 8px; /* Espaciado entre etiqueta y campo */
+    white-space: nowrap; /* Evita que las etiquetas se corten */
+}
+
+.fields input {
+    padding: 4px 8px; /* Espaciado interno */
+    font-size: 14px; /* Tamaño del texto */
+    border: 1px solid #ccc; /* Borde del campo */
+    border-radius: 4px; /* Bordes redondeados */
+    width: 120px; /* Ancho fijo para los campos */
+    box-sizing: border-box; /* Incluye padding y borde en el ancho */
+}
+
+.fields input:focus {
+    outline: none; /* Quita el borde predeterminado */
+    border-color: #007bff; /* Color del borde al enfocar */
+    box-shadow: 0 0 4px rgba(0, 123, 255, 0.5); /* Resaltado al enfocar */
+}
+
+
+textarea {
+    resize: none;
+}
+
+.button-section {
+    margin-left: 15px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+}
+
+.button-section button ion-icon {
+    font-size: 30px; /* Ajusta el tamaño al del texto */
+    vertical-align: middle;
+}
+
+.button-section button:nth-child(1) ion-icon {
+    color: #4caf50; /* Verde */
+}
+
+.button-section button:nth-child(2) ion-icon {
+    color: #2196f3; /* Azul */
+}
+
+.button-section button:nth-child(3) ion-icon {
+    color: #ff9800; /* Naranja */
+}
+
+.button-section button:nth-child(4) ion-icon {
+    color: #9c27b0; /* Púrpura */
+}
+
+.button-section button:nth-child(5) ion-icon {
+    color: #f44336; /* Rojo */
+}
+
+.button-section button:nth-child(6) ion-icon {
+    color: #607d8b; /* Gris */
+}
+
+.button-section button:nth-child(7) ion-icon {
+    color: #795548; /* Marrón */
+}
+
+.button-section button:nth-child(8) ion-icon {
+    color: #3f51b5; /* Azul oscuro */
+}
+
+.button-section button:nth-child(9) ion-icon {
+    color: #ffc107; /* Amarillo */
+}
+
+.button-section button  {
+    padding: 10px 5px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #ffffff;
+    border-left: 1px solid #000000;
+    border-radius: 4px;
+    width: 100%;
+    text-align: center;
+}
+
+.button-section button:hover {
+    transform: translateY(-5px); /* Mover ligeramente hacia arriba */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Añadir sombra para resaltar */
+}
+
+@media print {
+    .button-section {
+        display: none; /* Oculta la sección de botones */
+    }
+}
+
+.footer {
+    margin-top: 20px;
+    text-align: center;
+    align-items: center;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.title {
+    display: flex;
+    align-items: center;
+    gap: 220px;
+}
+
+.operation input {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 5px;
+    font-size: 16px;
+    width: 100px;
+    text-align: center;
+}
+
+@media print {
+    /* Ajustar el tamaño de la página a 58mm */
+    @page {
+        size: 58mm auto;
+        margin: 0; /* Eliminar márgenes predeterminados */
+    }
+
+    /* Estilo para los contenedores */
+    .container {
+        width: 58mm; /* Ajustar el contenedor al tamaño de 58mm */
+        margin: 0 auto; /* Centrar el contenedor */
+        padding: 2mm; /* Reducir el espaciado para ajustarse mejor */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /* Quitar bordes de los inputs y otros elementos durante la impresión */
+    .field input, .field select {
+        border: none; /* Eliminar el borde de los campos */
+        outline: none; /* Eliminar el borde de enfoque */
+        box-shadow: none; /* Eliminar sombras de los campos */
+        width: 100%; /* Asegurarse de que ocupen todo el ancho disponible */
+        font-size: 8px; /* Mantener el tamaño del texto */
+        padding: 2mm; /* Asegurarse de que tengan espacio suficiente */
+        margin-bottom: 2mm; /* Espacio debajo de cada campo */
+        text-align: center; /* Centrar el texto dentro del input */
+    }
+
+    /* Quitar bordes alrededor de la caja de los campos */
+    .fields input,
+    .fields select {
+        border: none; /* Eliminar bordes */
+    }
+
+    /* Modificar la disposición de los campos de fecha y hora solo cuando se imprima */
+    .fields {
+        display: flex; /* En pantalla, mantener los elementos en línea */
+        justify-content: space-between; /* Espaciado entre los campos */
+        width: 100%; /* Asegurarse de que ocupe todo el ancho */
+    }
+
+    .fields label {
+        font-size: 8px;
+    }
+
+    .fields input {
+        font-size: 8px;
+        width: 45%; /* Ajustar el tamaño de los campos */
+    }
+
+    /* Cambiar disposición a columna solo cuando se imprima */
+    .fields.print-column {
+        flex-direction: column; /* Colocar los campos uno debajo del otro */
+    }
+
+    /* Asegurarse de que los campos de la fecha y hora se centren correctamente */
+    .fields.print-column label,
+    .fields.print-column input {
+        text-align: center;
+    }
+
+    .header {
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* Centrar los elementos dentro de .header */
+        margin-bottom: 3mm;
+    }
+
+    /* Ocultar el título y la operación durante la impresión */
+    .title, .operation {
+        display: none;
+    }
+
+    .form-section {
+        font-size: 8px; /* Mantener el tamaño del texto en la sección del formulario */
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* Centrar todos los campos dentro de la sección */
+    }
+
+    .field {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 2mm;
+        align-items: center; /* Centrar cada campo dentro de su contenedor */
+    }
+
+    .field label {
+        font-size: 8px; /* Mantener el tamaño de las etiquetas */
+        margin-bottom: 1mm;
+        text-align: center; /* Centrar las etiquetas */
+    }
+
+    .field input,
+    .field select {
+        font-size: 8px; /* Mantener el tamaño original de los inputs/selects */
+        padding: 2mm;
+        width: 150%; /* Ajustar el ancho para que ocupe todo el espacio disponible */
+        margin-bottom: 2mm;
+        text-align: center; /* Centrar el texto dentro de los inputs/selects */
+    }
+
+    .fields {
+        display: flex;
+        justify-content: center; /* Centrar los campos dentro de .fields */
+        margin-bottom: 4mm;
+        width: 100%; /* Asegurarse de que .fields ocupe todo el ancho disponible */
+    }
+
+    .fields label {
+        font-size: 8px; /* Mantener el tamaño de las etiquetas */
+        text-align: center; /* Centrar las etiquetas dentro de .fields */
+    }
+
+    .fields input {
+        font-size: 8px; /* Mantener el tamaño de los inputs */
+        width: 20mm; /* Ajustar el ancho para que se vea bien en 58mm */
+        text-align: center; /* Centrar el texto dentro de los inputs */
+    }
+
+    .button-section {
+        display: none; /* Ocultar los botones de la sección */
+    }
+
+    .footer {
+        font-size: 6px; /* Mantener el tamaño del texto en el pie de página */
+        text-align: center;
+        margin-top: 6mm;
+    }
+
+    .field input:focus {
+        outline: none; /* Quitar el borde al hacer foco */
+    }
+
+    /* Cambiar la disposición de los campos de Fecha y Hora */
+    .fields .field {
+        display: flex;
+        flex-direction: column; /* Colocar los campos uno debajo del otro */
+        width: 100%; /* Asegurarse de que ocupe todo el espacio disponible */
+    }
+
+    /* Asegurarse de que los campos de Fecha y Hora se ajusten */
+    .field input[name="fecha"], .field input[name="hora"] {
+        width: 100%; /* Asegurarse de que estos campos ocupen todo el ancho */
+        font-size: 8px; /* Mantener el tamaño del texto */
+    }
+
+    .title h1, .operation input {
+        font-size: 8px; /* Ajustar título y campos de operación */
+    }
+}

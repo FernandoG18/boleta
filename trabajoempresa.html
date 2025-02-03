@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boleta</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title">
+                <h1 class="title">INCITECSA</h1>
+                <div class="operation">
+                    <label for="operation"># OPERACIÓN:</label>
+                    <input type="text" id="operation" value="000000">
+                </div>
+            </div>
+        </div>        
+        
+        <div class="main-content">
+            <div class="form-section">
+                <div class="field">
+                    <label for="negocio">Negocio:</label>
+                    <input type="text" id="negocio" value="CESTYS PERÚ" readonly>
+                </div>
+
+                <div class="field">
+                    <label for="direccion">Dirección:</label>
+                    <input type="text" id="direccion" value="AV. INDEPENDENCIA 257 - Huamanga" readonly>
+                </div>
+            
+                <div class="fields print-column">
+                    <label for="fecha">Fecha de pago:</label>
+                    <input type="date" id="fecha">
+                
+                    <label for="hora">Hora de pago:</label>
+                    <input type="text" id="hora">
+                </div>
+                
+
+                <div class="field">
+                    <label for="servicio">Servicio:</label>
+                    <select id="servicio">
+                        <option value="topografia">Topografía</option>
+                        <option value="ingenieria">Ingeniería</option>
+                        <option value="gestion">Gestión</option>
+                        <option value="construccion">Construcción</option>
+                        <option value="otros">Otros</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="empresa">Empresa:</label>
+                    <select id="empresa">
+                        <option value="cestys">Cestys Perú</option>
+                        <option value="multipagos">Multipagos Perú</option>
+                        <option value="construc">Construcción</option>
+                        <option value="vision">Visión Global</option>
+                        <option value="otros">Otros</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="cliente">Cliente:</label>
+                    <input type="text" id="cliente" placeholder="Nombre del cliente">
+                </div>
+
+                <div class="field">
+                    <label for="codigo">Código/Número:</label>
+                    <input type="number" id="codigo" placeholder="Código">
+                </div>
+
+                <div class="field">
+                    <label for="monto">Monto Pagado (S/):</label>
+                    <input type="number" id="monto" placeholder="Monto Pagado" step="0.01">
+                </div>
+
+                <div class="field">
+                    <label for="comision">Comisión (S/):</label>
+                    <input type="number" id="comision" placeholder="Comisión" step="0.01">
+                </div>
+
+                <div class="field">
+                    <label for="total">Total (S/):</label>
+                    <input type="text" id="total" placeholder="Total" readonly>
+                </div>
+                
+                <script>
+                    // Captura el input de monto y comisión
+                    const montoInput = document.getElementById('monto');
+                    const comisionInput = document.getElementById('comision');
+                    const totalInput = document.getElementById('total');
+                
+                    // Función para calcular el total
+                    function calcularTotal() {
+                        const monto = parseFloat(montoInput.value) || 0;
+                        const comision = parseFloat(comisionInput.value) || 0;
+                        const total = monto + comision;
+                        totalInput.value = total.toFixed(2);
+                    }
+
+                    // Agregar eventos para calcular el total automáticamente
+                    montoInput.addEventListener('blur', calcularTotal);
+                    comisionInput.addEventListener('blur', calcularTotal);
+
+                    // Aplicar formato al monto
+                    montoInput.addEventListener('blur', function () {
+                        if (montoInput.value) {
+                            montoInput.value = parseFloat(montoInput.value).toFixed(2);
+                        }
+                    });
+
+                    window.onload = function () {
+                        const today = new Date();
+                        document.getElementById('fecha').value = today.toISOString().split('T')[0];
+                        let hours = today.getHours();
+                        let minutes = today.getMinutes();
+                        hours = hours < 10 ? '0' + hours : hours;
+                        minutes = minutes < 10 ? '0' + minutes : minutes;
+                        const hora = `${hours}:${minutes}`;
+                        document.getElementById('hora').value = hora;
+                    };
+                </script>
+                
+            </div>
+            
+            <div class="button-section">
+                <button id="saveButton"><ion-icon name="save-outline"></ion-icon> Guardar F2</button>
+                <button id="consultar" onclick="window.location.href='consulta.html'"><ion-icon name="search-outline"></ion-icon> Consultar F4</button>
+                <button id="printButton"><ion-icon name="print-outline"></ion-icon> Imprimir F5</button>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Copyright 2024. INCTECSA. Reservados todos los derechos.</p>
+        </div>
+        
+    </div>
+
+    <script>
+        // Guardar los datos en localStorage
+        document.getElementById('saveButton').addEventListener('click', function () {
+            const operation = document.getElementById('operation').value;
+            const fecha = document.getElementById('fecha').value;
+            const hora = document.getElementById('hora').value;
+            const servicio = document.getElementById('servicio').value;
+            const empresa = document.getElementById('empresa').value;
+            const cliente = document.getElementById('cliente').value;
+            const codigo = document.getElementById('codigo').value;
+            const monto = document.getElementById('monto').value;
+            const comision = document.getElementById('comision').value;
+            const total = document.getElementById('total').value;
+
+            const boleta = {
+                operation,
+                fecha,
+                hora,
+                servicio,
+                empresa,
+                cliente,
+                codigo,
+                monto,
+                comision,
+                total
+            };
+
+            // Guardar los datos en localStorage
+            let boletas = JSON.parse(localStorage.getItem('boletas')) || [];
+            boletas.push(boleta);
+            localStorage.setItem('boletas', JSON.stringify(boletas));
+
+            alert("Datos guardados correctamente!");
+        });
+
+        document.getElementById("printButton").addEventListener("click", function () {
+    window.print();
+});
+
+    </script>
+
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</body>
+</html>
