@@ -29,6 +29,7 @@ body {
   }
   
   input[type="text"], input[type="number"], input[type="datetime-local"] {
+    font-size: 15px;
     width: 100%;
     padding: 6px;
     border: 1px solid #ddd;
@@ -75,18 +76,32 @@ body {
   
   @media print {
     body {
-      width: 58mm;
-      height: 58mm;
+      width: 80mm;  
+      height: auto; 
       margin: 0;
     }
     form {
-      max-width: 58mm;
+      max-width: 80mm;
       box-shadow: none;
       padding: 0;
       border: none;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1px;  
     }
-    input[type="text"], input[type="number"], input[type="datetime-local"], span {
+    label {
+      font-weight: bold;
+      margin-bottom: 0;
+      display: inline-block;
+      margin-right: 4px;
+    }
+    input[type="text"], input[type="number"], input[type="datetime-local"], input[type="date"], input[type="time"], span {
+      font-size: 14px;
+      padding: 4px;
       border: none;
+      white-space: nowrap; 
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     button, .buttons {
       display: none;
@@ -94,4 +109,5 @@ body {
     footer {
       font-size: 0.8em;
     }
-  }
+}
+
