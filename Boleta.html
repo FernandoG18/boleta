@@ -10,10 +10,10 @@
   <h1>INCTECSA</h1>
   <form id="paymentForm">
     <label for="operation">Operación:</label>
-    <input type="text" id="operation" name="operation">
+    <input type="text" id="operation" name="operation" readonly>
 
     <label for="business">Negocio:</label>
-    <input type="text" id="business" name="business" value="Cestys Perú" readonly>
+    <input type="text" id="business" name="business" value="CESTYS PERÚ" readonly>
 
     <label for="address">Dirección:</label>
     <input type="text" id="address" name="address" value="Av. Independencia 247" readonly>
@@ -46,7 +46,18 @@
       <button type="button" onclick="saveForm()">Guardar</button>
       <button type="button" onclick="consultForm()">Consultar</button>
       <button type="button" onclick="printForm()">Imprimir</button>
+      <button type="button" onclick="resetOperationNumber()">Resetear Operación</button>
     </div>
+    
+    <script>
+      // Resetea el número de operación a 00001
+      function resetOperationNumber() {
+        localStorage.setItem('operationNumber', '00001');
+        document.getElementById('operation').value = '00001';
+        alert("Número de operación reseteado a 00001.");
+      }
+    </script>
+    
   </form>
 
   <footer>
@@ -55,10 +66,35 @@
 
   <script>
     window.onload = () => {
-      const now = new Date();
-      const localDatetime = now.toISOString().slice(0, 16);
-      document.getElementById('paymentDate').value = localDatetime;
+      setInitialOperationNumber();
+      setInitialDatetime();
     };
+
+    function setInitialDatetime() {
+      const now = new Date();
+
+      // Construir la fecha en el formato "YYYY-MM-DDTHH:mm" en hora local
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+
+      const localDatetime = `${year}-${month}-${day}T${hours}:${minutes}`;
+      document.getElementById('paymentDate').value = localDatetime;
+    }
+
+    function setInitialOperationNumber() {
+      let currentOperation = localStorage.getItem('operationNumber');
+
+      // Si no existe un número de operación previo, se inicializa en 1
+      if (!currentOperation) {
+        currentOperation = '00001';
+        localStorage.setItem('operationNumber', currentOperation);
+      }
+
+      document.getElementById('operation').value = currentOperation;
+    }
 
     function calculateTotal() {
       const paidAmount = parseFloat(document.getElementById('paidAmount').value) || 0;
@@ -67,7 +103,15 @@
     }
 
     function saveForm() {
+      // Incrementar el número de operación
+      let currentOperation = localStorage.getItem('operationNumber');
+      currentOperation = String(parseInt(currentOperation) + 1).padStart(5, '0');
+
+      // Guardar el nuevo número en localStorage
+      localStorage.setItem('operationNumber', currentOperation);
+
       alert("Datos guardados correctamente.");
+      document.getElementById('operation').value = currentOperation;
     }
 
     function consultForm() {
@@ -80,3 +124,4 @@
   </script>
 </body>
 </html>
+
