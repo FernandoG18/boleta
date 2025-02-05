@@ -1,6 +1,6 @@
 body {
     font-family: Arial, sans-serif;
-    margin: 20px;
+    margin: 10px;
     background-color: #f9f9f9;
   }
   
@@ -10,28 +10,28 @@ body {
   }
   
   form {
-    max-width: 450px;
+    max-width: 550px;
     margin: 0 auto;
-    padding: 10px;
+    padding: 5px;
     background-color: #ffffff;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     display: grid;
-    grid-template-columns: repeat(2, minmax(150px, 1fr));
+    grid-template-columns: repeat(2, minmax(100px, 1fr));
     gap: 5px;
     align-items: center;
   }
   
   label {
     font-weight: bold;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
     display: block;
   }
   
   input[type="text"], input[type="number"], input[type="datetime-local"] {
     font-size: 15px;
-    width: 100%;
-    padding: 6px;
+    width: auto;
+    padding: 10px;
     border: 1px solid #ddd;
     border-radius: 5px;
   }
@@ -73,41 +73,42 @@ body {
     font-size: 0.9em;
     color: #555;
   }
-  
+  @page {
+    margin: 0;
+}
   @media print {
     body {
-      width: 80mm;  
-      height: auto; 
-      margin: 0;
+        width: 100mm;  /* Cambiado a 58mm */
+        height: auto;
+        margin: 0;
     }
     form {
-      max-width: 80mm;
-      box-shadow: none;
-      padding: 0;
-      border: none;
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 1px;  
+        max-width: 80mm; /* Se adapta al nuevo tamaño */
+        box-shadow: none;
+        padding: 0;
+        border: none;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 1px;
     }
     label {
-      font-weight: bold;
-      margin-bottom: 0;
-      display: inline-block;
-      margin-right: 4px;
+        font-weight: bold;
+        margin-bottom: 0;
+        display: inline-block;
+        margin-right: 0;
     }
     input[type="text"], input[type="number"], input[type="datetime-local"], input[type="date"], input[type="time"], span {
-      font-size: 14px;
-      padding: 4px;
-      border: none;
-      white-space: nowrap; 
-      overflow: hidden;
-      text-overflow: ellipsis;
+        font-size: 14px;
+        padding: 4px;
+        border: none;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     button, .buttons {
-      display: none;
+        display: none;
     }
     footer {
-      font-size: 0.8em;
-    }
+        font-size: 0.8em;
+    }
 }
-
