@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>INCTECSA</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>INCTECSA</h1>
+  <form id="paymentForm">
+    <label for="operation">Operación:</label>
+    <input type="text" id="operation" name="operation">
+
+    <label for="business">Negocio:</label>
+    <input type="text" id="business" name="business" value="Cestys Perú" readonly>
+
+    <label for="address">Dirección:</label>
+    <input type="text" id="address" name="address" value="Av. Independencia 247" readonly>
+
+    <label for="paymentDate">Fecha y Hora de Pago:</label>
+    <input type="datetime-local" id="paymentDate" name="paymentDate">
+
+    <label for="service">Servicio:</label>
+    <input type="text" id="service" name="service">
+
+    <label for="company">Empresa:</label>
+    <input type="text" id="company" name="company">
+
+    <label for="client">Cliente:</label>
+    <input type="text" id="client" name="client">
+
+    <label for="code">Código/Número:</label>
+    <input type="text" id="code" name="code">
+
+    <label for="paidAmount">Monto Pagado:</label>
+    <input type="number" id="paidAmount" name="paidAmount" step="0.01" oninput="calculateTotal()">
+
+    <label for="commission">Comisión:</label>
+    <input type="number" id="commission" name="commission" step="0.01" oninput="calculateTotal()">
+
+    <label for="total">Total:</label>
+    <input type="text" id="total" name="total" readonly>
+
+    <div class="buttons">
+      <button type="button" onclick="saveForm()">Guardar</button>
+      <button type="button" onclick="consultForm()">Consultar</button>
+      <button type="button" onclick="printForm()">Imprimir</button>
+    </div>
+  </form>
+
+  <footer>
+    Copyright 2024. INCTECSA. Reservados todos los derechos.
+  </footer>
+
+  <script>
+    window.onload = () => {
+      const now = new Date();
+      const localDatetime = now.toISOString().slice(0, 16);
+      document.getElementById('paymentDate').value = localDatetime;
+    };
+
+    function calculateTotal() {
+      const paidAmount = parseFloat(document.getElementById('paidAmount').value) || 0;
+      const commission = parseFloat(document.getElementById('commission').value) || 0;
+      document.getElementById('total').value = (paidAmount + commission).toFixed(2);
+    }
+
+    function saveForm() {
+      alert("Datos guardados correctamente.");
+    }
+
+    function consultForm() {
+      alert("Función consultar en desarrollo.");
+    }
+
+    function printForm() {
+      window.print();
+    }
+  </script>
+</body>
+</html>
