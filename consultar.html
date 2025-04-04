@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INCTECSA - Consultar Boletas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 min-h-screen p-4"> 
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <div class="bg-blue-600 text-white p-4 rounded-t-lg">
+            <div class="flex justify-between items-center">
+                <h1 class="text-2xl font-bold">INCTECSA - Boletas Guardadas</h1>
+                <button onclick="window.location.href='boleta.html'" class="bg-white text-blue-600 px-4 py-2 rounded hover:bg-gray-100 transition">
+                    Volver al Formulario
+                </button>
+                <button onclick="reiniciarContador()" class="bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded transition">
+                    <i class="fas fa-sync-alt mr-2"></i>Reiniciar Contador
+                </button>
+            </div>
+        </div>
+        
+        <!-- Boletas Table -->
+        <div class="bg-white shadow-lg rounded-b-lg overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Operación</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha/Hora</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Servicio</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monto</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="boletasTable" class="bg-white divide-y divide-gray-200">
+                        <!-- Las boletas se cargarán aquí con JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="bg-gray-200 p-3 text-center text-sm text-gray-600 mt-4 rounded-lg">
+            <p>Copyright 2024 | INCTECSA | Reservados todos los derechos</p>
+        </div>
+    </div>
+
+    <script>
+        // Función para dividir nombres largos en dos líneas
+        function dividirNombre(nombreCompleto) {
+            const partes = nombreCompleto.split(' ');
+            if (partes.length <= 2) return nombreCompleto;
+            
+            const mitad = Math.ceil(partes.length / 2);
+            const linea1 = partes.slice(0, mitad).join(' ');
+            const linea2 = partes.slice(mitad).join(' ');
+            
+            return `${linea1}<br>${linea2}`;
+        }
+
+        // Cargar y mostrar boletas al abrir la página
+        document.addEventListener('DOMContentLoaded', function() {
+            cargarBoletas();
+        });
+
+        // Cargar boletas desde localStorage
+        function cargarBoletas() {
+            const boletas = JSON.parse(localStorage.getItem('boletas')) || [];
+            const tableBody = document.getElementById('boletasTable');
+            
+            if (boletas.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                            No hay boletas guardadas
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tableBody.innerHTML = '';
+            
+            boletas.forEach((boleta, index) => {
+                const row = document.createElement('tr');
+                row.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${boleta.operacion}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${boleta.fechaHora}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${boleta.servicio}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${dividirNombre(boleta.cliente)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">S/ ${boleta.monto.toFixed(2)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">S/ ${boleta.total.toFixed(2)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <button onclick="verDetalle(${index})" class="text-blue-600 hover:text-blue-900 mr-2">Ver</button>
+                        <button onclick="imprimirBoleta(${index})" class="text-yellow-600 hover:text-yellow-800 mr-2">
+                            <i class="fas fa-print"></i>
+                        </button>
+                        <button onclick="eliminarBoleta(${index})" class="text-red-600 hover:text-red-900">Eliminar</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Ver detalle de boleta
+        function verDetalle(index) {
+            const boletas = JSON.parse(localStorage.getItem('boletas'));
+            const boleta = boletas[index];
+            
+            let detalle = `
+                Operación: ${boleta.operacion}\n
+                Negocio: ${boleta.negocio}\n
+                Dirección: ${boleta.direccion}\n
+                Fecha/Hora: ${boleta.fechaHora}\n
+                Servicio: ${boleta.servicio}\n
+                Empresa: ${boleta.empresa}\n
+                Cliente: ${boleta.cliente}\n
+                Código/Número: ${boleta.codigo}\n
+                Monto Pagado: S/ ${boleta.monto.toFixed(2)}\n
+                Comisión: S/ ${boleta.comision.toFixed(2)}\n
+                Total: S/ ${boleta.total.toFixed(2)}
+            `;
+            
+            alert(detalle);
+        }
+
+function imprimirBoleta(index) {
+    const boletas = JSON.parse(localStorage.getItem('boletas'));
+    const boleta = boletas[index];
+
+    // Función para dividir el nombre si es necesario
+    const dividirNombre = (nombreCompleto) => {
+        nombreCompleto = nombreCompleto.toUpperCase();
+        const partes = nombreCompleto.split(' ');
+        if(partes.length > 2) {
+            return `${partes.slice(0, 2).join(' ')}<br>${partes.slice(2).join(' ')}`;
+        }
+        return nombreCompleto;
+    };
+
+    const contenido = `
+    <div style="width:100%; max-width:800px; margin:0 auto; font-family:Arial; font-size:16px; line-height:1.5">
+        <h1 style="font-size:24px; font-weight:bold; text-align:center; margin-bottom:10px">INCTECSA</h1>
+        <p style="text-align:center; margin-bottom:5px">${boleta.fechaHora}</p>
+        <p style="text-align:center; margin-bottom:20px">Av. Independencia 247</p>
+        
+        <div style="margin-bottom:20px; border-bottom:1px dashed #ccc; padding-bottom:10px">
+            <div style="display:flex; margin-bottom:8px">
+                <div style="width:120px; font-weight:bold">Operación:</div>
+                <div>${boleta.operacion}</div>
+            </div>
+            <div style="display:flex; margin-bottom:8px">
+                <div style="width:120px; font-weight:bold">Negocio:</div>
+                <div>${boleta.negocio.toUpperCase()}</div>
+            </div>
+            <div style="display:flex; margin-bottom:8px">
+                <div style="width:120px; font-weight:bold">Servicio:</div>
+                <div>${boleta.servicio.toUpperCase()}</div>
+            </div>
+            <div style="display:flex; margin-bottom:8px">
+                <div style="width:120px; font-weight:bold">Empresa:</div>
+                <div>${boleta.empresa.toUpperCase()}</div>
+            </div>
+            <div style="display:flex; margin-bottom:8px">
+                <div style="width:120px; font-weight:bold">Cliente:</div>
+                <div>${dividirNombre(boleta.cliente)}</div>
+            </div>
+            <div style="display:flex; margin-bottom:8px">
+                <div style="width:120px; font-weight:bold">Código:</div>
+                <div>${boleta.codigo || 'N/A'}</div>
+            </div>
+        </div>
+        
+        <div style="margin-bottom:20px">
+            <div style="display:flex; margin-bottom:8px">
+                <div style="width:120px; font-weight:bold">Monto:</div>
+                <div>S/ ${boleta.monto.toFixed(2)}</div>
+            </div>
+            <div style="display:flex; margin-bottom:8px">
+                <div style="width:120px; font-weight:bold">Comisión:</div>
+                <div>S/ ${boleta.comision.toFixed(2)}</div>
+            </div>
+            <div style="display:flex; margin-bottom:8px; font-size:18px; font-weight:bold">
+                <div style="width:120px">TOTAL:</div>
+                <div>S/ ${boleta.total.toFixed(2)}</div>
+            </div>
+        </div>
+        
+        <div style="text-align:center; font-size:14px; margin-top:30px">
+            <p>Agua, luz, gas, cable, telefonía</p>
+            <p>recargas virtuales, cosméticos y más...</p>
+            <p style="margin-top:10px">Gracias por su visita</p>
+            <p style="font-weight:bold; margin-top:5px">CURSOS DE INGENIERÍA & GESTIÓN</p>
+        </div>
+    </div>
+    `;
+    
+    const ventana = window.open('', '_blank');
+    ventana.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Boleta ${boleta.operacion}</title>
+            <style>
+                @media print {
+                    @page {
+                        margin: 10mm;
+                        size: auto;
+                    }
+                    body {
+                        margin: 0;
+                        padding: 0;
+                        -webkit-print-color-adjust: exact;
+                        print-color-adjust: exact;
+                    }
+                }
+            </style>
+        </head>
+        <body style="margin:0;padding:20px" onload="window.print();setTimeout(()=>{window.close()},1000)">
+        ${contenido}
+        </body>
+        </html>
+    `);
+    ventana.document.close();
+}
+        // Eliminar boleta
+        function eliminarBoleta(index) {
+            if (confirm('¿Está seguro que desea eliminar esta boleta?')) {
+                const boletas = JSON.parse(localStorage.getItem('boletas'));
+                boletas.splice(index, 1);
+                localStorage.setItem('boletas', JSON.stringify(boletas));
+                cargarBoletas();
+            }
+        }
+
+        function reiniciarContador() {
+            if (confirm("¿Estás seguro de reiniciar el contador a 00001? Esto no afectará las boletas guardadas.")) {
+                localStorage.setItem('ultimaOperacion', '00000');
+                alert("Contador reiniciado. La próxima operación será 00001.");
+                window.location.href = 'boleta.html';
+            }
+        }
+    </script>
+</body>
+</html>
