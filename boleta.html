@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INCTECSA - Operación de Pago</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl overflow-hidden">
+        <!-- Header -->
+        <div class="bg-blue-600 text-white p-4">
+            <h1 class="text-2xl font-bold text-center">INCTECSA</h1>
+        </div>
+        
+        <!-- Form Content -->
+        <div class="p-6 space-y-4">
+            <!-- First Row -->
+            <div class="grid grid-cols-2 gap-4">
+                <!-- Operación -->
+                <div class="space-y-1">
+                    <label class="block font-medium text-gray-700">Operación:</label>
+                    <div id="operacion" class="border border-gray-300 rounded px-3 py-2 bg-gray-50">00001</div>
+                </div>
+                
+                <!-- Negocio -->
+                <div class="space-y-1">
+                    <label class="block font-medium text-gray-700">Negocio:</label>
+                    <div class="border border-gray-300 rounded px-3 py-2 bg-gray-50">CESTYS PERÚ</div>
+                </div>
+            </div>
+            
+            <!-- Second Row -->
+            <div class="grid grid-cols-2 gap-4">
+                <!-- Dirección -->
+                <div class="space-y-1">
+                    <label class="block font-medium text-gray-700">Dirección:</label>
+                    <div class="border border-gray-300 rounded px-3 py-2 bg-gray-50">Av. Independencia 247</div>
+                </div>
+                
+                <!-- Fecha y Hora de Pago -->
+                <div class="space-y-1">
+                    <label class="block font-medium text-gray-700">Fecha y Hora de Pago:</label>
+                    <div id="fechaHora" class="border border-gray-300 rounded px-3 py-2 bg-gray-50"></div>
+                </div>
+            </div>
+            
+            <!-- Empty Fields Rows -->
+            <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-1">
+                    <label class="block font-medium text-gray-700">Servicio: <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <select id="servicio" class="border border-gray-300 rounded px-3 py-2 w-full bg-gray-50 pr-8" onchange="mostrarInputServicio()" required>
+                            <option value="">Seleccione un servicio</option>
+                            <option value="Pago de Servicios">Pago de Servicios</option>
+                            <option value="Recarga Celular">Recarga Celular</option>
+                            <option value="Pago de Facturas">Pago de Facturas</option>
+                            <option value="Transferencia Bancaria">Transferencia Bancaria</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                        </div>
+                    </div>
+                    <input type="text" id="otroServicio" class="border border-gray-300 rounded px-3 py-2 w-full bg-gray-50 mt-2 hidden" placeholder="Especifique el servicio">
+                </div>
+                
+                <div class="space-y-1">
+                    <label class="block font-medium text-gray-700">Empresa: <span class="text-red-500">*</span></label>
+                    <input type="text" id="empresa" class="border border-gray-300 rounded px-3 py-2 w-full bg-gray-50" required>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-1">
+                    <label class="block font-medium text-gray-700">Cliente: <span class="text-red-500">*</span></label>
+                    <input type="text" id="cliente" class="border border-gray-300 rounded px-3 py-2 w-full bg-gray-50" required>
+                </div>
+                
+                <div class="space-y-1">
+                    <label class="block font-medium text-gray-700">Código/Número:</label>
+                    <div class="flex">
+                        <input type="text" id="codigo" class="border border-gray-300 rounded-l px-3 py-2 w-full bg-gray-50" readonly>
+                        <button onclick="generarCodigo()" class="bg-blue-500 hover:bg-blue-600 text-white px-3 rounded-r" title="Generar código aleatorio">
+                            <i class="fas fa-random"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-1">
+                    <label class="block font-medium text-gray-700">Monto Pagado: <span class="text-red-500">*</span></label>
+                    <input type="number" id="monto" class="border border-gray-300 rounded px-3 py-2 w-full bg-gray-50" oninput="calcularTotal()" required>
+                </div>
+                
+                <div class="space-y-1">
+                    <label class="block font-medium text-gray-700">Comisión: <span class="text-red-500">*</span></label>
+                    <input type="number" id="comision" class="border border-gray-300 rounded px-3 py-2 w-full bg-gray-50" oninput="calcularTotal()" required>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-1">
+                    <label class="block font-medium text-gray-700">Total:</label>
+                    <div id="total" class="border border-gray-300 rounded px-3 py-2 h-8 bg-gray-50">0.00</div>
+                </div>
+                <div class="space-y-1">
+                    <!-- Empty space to maintain alignment -->
+                    <label class="block font-medium text-gray-700 invisible">Empty:</label>
+                    <div class="border border-gray-300 rounded px-3 py-2 h-8 bg-gray-50 opacity-0"></div>
+                </div>
+            </div>
+            
+            <!-- Buttons -->
+            <div class="grid grid-cols-4 gap-4 pt-4">
+                <button class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded transition" onclick="guardarBoleta()">
+                    Guardar
+                </button>
+                <button class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded transition" onclick="window.location.href='consultar.html'">
+                    Consultar
+                </button>
+                <button class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded transition" onclick="imprimirBoleta()">
+                    Imprimir
+                </button>
+                <button class="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded transition" onclick="resetearFormulario()">
+                    Resetear Operación
+                </button>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="bg-gray-200 p-3 text-center text-sm text-gray-600">
+            <p>Copyright 2024 | INCTECSA | Reservados todos los derechos</p>
+        </div>
+    </div>
+
+    <script>
+        // Mostrar fecha y hora actual
+        function actualizarFechaHora() {
+            const ahora = new Date();
+            const dia = ahora.getDate().toString().padStart(2, '0');
+            const mes = (ahora.getMonth() + 1).toString().padStart(2, '0');
+            const año = ahora.getFullYear();
+            const horas = ahora.getHours().toString().padStart(2, '0');
+            const minutos = ahora.getMinutes().toString().padStart(2, '0');
+            
+            document.getElementById('fechaHora').textContent = 
+                `${dia} / ${mes} / ${año}  ${horas} : ${minutos}`;
+        }
+
+        // Generar código aleatorio (00 + 6 dígitos aleatorios)
+        function generarCodigo() {
+            const randomNum = Math.floor(100000 + Math.random() * 900000); // 6 dígitos aleatorios
+            document.getElementById('codigo').value = `00${randomNum}`;
+        }
+
+        // Mostrar campo para escribir cuando se selecciona "Otro" en servicio
+        function mostrarInputServicio() {
+            const servicioSelect = document.getElementById('servicio');
+            const otroServicioInput = document.getElementById('otroServicio');
+            
+            if (servicioSelect.value === 'Otro') {
+                otroServicioInput.classList.remove('hidden');
+                otroServicioInput.required = true;
+            } else {
+                otroServicioInput.classList.add('hidden');
+                otroServicioInput.required = false;
+                otroServicioInput.value = '';
+            }
+        }
+
+        // Calcular total automáticamente
+        function calcularTotal() {
+            const monto = parseFloat(document.getElementById('monto').value) || 0;
+            const comision = parseFloat(document.getElementById('comision').value) || 0;
+            const total = monto + comision;
+            document.getElementById('total').textContent = total.toFixed(2);
+        }
+
+        // Obtener el próximo número de operación
+        function obtenerProximaOperacion() {
+            const ultimaOperacion = localStorage.getItem('ultimaOperacion') || '00000';
+            const numero = parseInt(ultimaOperacion) + 1;
+            return numero.toString().padStart(5, '0');
+        }
+
+        // Actualizar número de operación
+        function actualizarNumeroOperacion() {
+            const nuevaOperacion = obtenerProximaOperacion();
+            document.getElementById('operacion').textContent = nuevaOperacion;
+            localStorage.setItem('ultimaOperacion', nuevaOperacion);
+            return nuevaOperacion;
+        }
+
+        // Validar campos obligatorios
+        function validarCampos() {
+            const servicioSelect = document.getElementById('servicio');
+            const otroServicio = document.getElementById('otroServicio');
+            const servicioValido = servicioSelect.value !== '' && 
+                                 (servicioSelect.value !== 'Otro' || otroServicio.value !== '');
+            
+            if (!servicioValido) {
+                alert('Por favor seleccione o especifique un servicio');
+                return false;
+            }
+            
+            const camposRequeridos = ['empresa', 'cliente', 'monto', 'comision'];
+            for (const campoId of camposRequeridos) {
+                const campo = document.getElementById(campoId);
+                if (!campo.value.trim()) {
+                    campo.focus();
+                    alert(`Por favor complete el campo: ${campo.previousElementSibling.textContent.replace('*', '').trim()}`);
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+
+        // Guardar boleta en localStorage
+        function guardarBoleta() {
+            if (!validarCampos()) return;
+            
+            // Obtener el servicio (puede ser del select o del input)
+            const servicioSelect = document.getElementById('servicio');
+            const otroServicio = document.getElementById('otroServicio').value;
+            const servicio = servicioSelect.value === 'Otro' ? otroServicio : servicioSelect.value;
+            
+            // Obtener número de operación (auto-incremental)
+            const operacion = actualizarNumeroOperacion();
+            
+            // Crear objeto con los datos de la boleta
+            const boleta = {
+                operacion: operacion,
+                negocio: 'CESTYS PERÚ',
+                direccion: 'Av. Independencia 247',
+                fechaHora: document.getElementById('fechaHora').textContent,
+                servicio: servicio,
+                empresa: document.getElementById('empresa').value,
+                cliente: document.getElementById('cliente').value,
+                codigo: document.getElementById('codigo').value,
+                monto: parseFloat(document.getElementById('monto').value),
+                comision: parseFloat(document.getElementById('comision').value) || 0,
+                total: parseFloat(document.getElementById('total').textContent)
+            };
+            
+            // Obtener boletas existentes o crear array vacío
+            let boletas = JSON.parse(localStorage.getItem('boletas')) || [];
+            
+            // Agregar nueva boleta
+            boletas.push(boleta);
+            
+            // Guardar en localStorage
+            localStorage.setItem('boletas', JSON.stringify(boletas));
+            
+            alert(`Boleta ${operacion} guardada correctamente`);
+            resetearFormulario();
+        }
+
+        // Imprimir boleta
+        function imprimirBoleta() {
+            window.print();
+        }
+
+        // Resetear formulario
+        function resetearFormulario() {
+            document.getElementById('servicio').value = '';
+            document.getElementById('otroServicio').value = '';
+            document.getElementById('otroServicio').classList.add('hidden');
+            document.getElementById('empresa').value = '';
+            document.getElementById('cliente').value = '';
+            document.getElementById('codigo').value = '';
+            document.getElementById('monto').value = '';
+            document.getElementById('comision').value = '';
+            document.getElementById('total').textContent = '0.00';
+            actualizarFechaHora();
+        }
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!localStorage.getItem('ultimaOperacion')) {
+                localStorage.setItem('ultimaOperacion', '00000');
+            }
+            document.getElementById('operacion').textContent = obtenerProximaOperacion();
+            actualizarFechaHora();
+        });
+    </script>
+</body>
+</html>
