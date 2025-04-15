@@ -130,63 +130,78 @@
             alert(detalle);
         }
 
-        function imprimirBoleta(index) {
+                function imprimirBoleta(index) {
     const boletas = JSON.parse(localStorage.getItem('boletas'));
     const boleta = boletas[index];
 
-    // Función para dividir el nombre en líneas más cortas
-    const dividirNombre = (nombreCompleto, maxPalabras = 2) => {
-        nombreCompleto = nombreCompleto.toUpperCase();
-        const partes = nombreCompleto.split(' ');
-        if(partes.length > maxPalabras) {
-            return {
-                linea1: partes.slice(0, maxPalabras).join(' '),
-                linea2: partes.slice(maxPalabras).join(' ')
-            };
-        }
-        return {linea1: nombreCompleto, linea2: ''};
+    // Función para dividir texto en líneas
+    const dividirTexto = (texto, maxCaracteres = 20) => {
+        texto = texto.toUpperCase();
+        if(texto.length <= maxCaracteres) return [texto];
+        
+        const palabras = texto.split(' ');
+        const lineas = [];
+        let lineaActual = '';
+        
+        palabras.forEach(palabra => {
+            if((lineaActual + ' ' + palabra).length <= maxCaracteres) {
+                lineaActual += (lineaActual ? ' ' : '') + palabra;
+            } else {
+                lineas.push(lineaActual);
+                lineaActual = palabra;
+            }
+        });
+        
+        if(lineaActual) lineas.push(lineaActual);
+        return lineas;
     };
 
-    const nombreDividido = dividirNombre(boleta.cliente, 3); // Permitir 3 palabras en primera línea
+    // Preparamos los datos
+    const fechaHora = boleta.fechaHora.length > 16 ? boleta.fechaHora.substring(0, 16) : boleta.fechaHora;
+    const lineasNombre = dividirTexto(boleta.cliente);
+    const lineasEmpresa = dividirTexto(boleta.empresa);
+    const lineasServicio = dividirTexto(boleta.servicio);
 
-    // Contenido optimizado para impresora térmica
+    // Contenido con alineación perfecta
     const contenido = `
-        <div style="width:72mm; margin:0 auto; font-family:'Courier New',monospace; font-size:10px; line-height:1.1">
+        <div style="width:72mm; margin:0 auto; font-family:'Courier New',monospace; font-size:10px; line-height:1.2; text-align:center">
             <!-- Encabezado -->
-            <div style="text-align:center; margin-bottom:2px">
+            <div style="margin-bottom:3px">
                 <div style="font-weight:bold; font-size:12px">INCTECSA</div>
-                <div>${boleta.fechaHora}</div>
+                <div>${fechaHora}</div>
                 <div>Av. Independencia 247</div>
             </div>
             
-            <!-- Línea separadora -->
-            <div style="border-top:1px dashed #000; margin:2px 0"></div>
+            <!-- Separador -->
+            <div style="border-top:1px dashed #000; margin:5px 0"></div>
             
-            <!-- Detalles de la operación -->
-            <div style="margin-bottom:2px">
-                <div><span style="font-weight:bold">OPER:</span> ${boleta.operacion.padEnd(15)} <span style="font-weight:bold">NEG:</span> ${boleta.negocio.substring(0, 10).toUpperCase()}</div>
-                <div><span style="font-weight:bold">SERV:</span> ${boleta.servicio.substring(0, 15).toUpperCase()}</div>
-                <div><span style="font-weight:bold">EMPR:</span> ${boleta.empresa.substring(0, 15).toUpperCase()}</div>
-                <div><span style="font-weight:bold">CLIE:</span> ${nombreDividido.linea1}</div>
-                <div style="margin-left:25px">${nombreDividido.linea2}</div>
-                <div><span style="font-weight:bold">COD:</span> ${(boleta.codigo || 'N/A').padEnd(15)}</div>
+            <!-- Bloque de datos alineados -->
+            <div style="display:inline-block; text-align:left; margin-bottom:3px">
+                <!-- Campos superiores -->
+                <div><span style="display:inline-block; width:65px; text-align:left">operacion:</span> ${boleta.operacion}</div>
+                <div><span style="display:inline-block; width:65px; text-align:left">negocio:</span> ${boleta.negocio.toUpperCase()}</div>
+                <div><span style="display:inline-block; width:65px; text-align:left">servicio:</span> ${lineasServicio[0]}</div>
+                ${lineasServicio.length > 1 ? `<div style="margin-left:65px">${lineasServicio[1]}</div>` : ''}
+                <div><span style="display:inline-block; width:65px; text-align:left">empresa:</span> ${lineasEmpresa[0]}</div>
+                ${lineasEmpresa.length > 1 ? `<div style="margin-left:65px">${lineasEmpresa[1]}</div>` : ''}
+                <div><span style="display:inline-block; width:65px; text-align:left">cliente:</span> ${lineasNombre[0]}</div>
+                ${lineasNombre.length > 1 ? `<div style="margin-left:65px">${lineasNombre[1]}</div>` : ''}
+                <div><span style="display:inline-block; width:65px; text-align:left">codigo:</span> ${boleta.codigo || 'N/A'}</div>
+                
+                <!-- Separador interno -->
+                <div style="border-top:1px dashed #000; margin:5px 0"></div>
+                
+                <!-- Montos con la misma alineación -->
+                <div><span style="display:inline-block; width:65px; text-align:left">monto:</span> S/${boleta.monto.toFixed(2)}</div>
+                <div><span style="display:inline-block; width:65px; text-align:left">comision:</span> S/${boleta.comision.toFixed(2)}</div>
+                <div><span style="display:inline-block; width:65px; text-align:left">total:</span> S/${boleta.total.toFixed(2)}</div>
             </div>
             
-            <!-- Línea separadora -->
-            <div style="border-top:1px dashed #000; margin:2px 0"></div>
-            
-            <!-- Montos -->
-            <div style="margin-bottom:2px">
-                <div><span style="font-weight:bold">MONTO:</span> S/${boleta.monto.toFixed(2).padStart(10)}</div>
-                <div><span style="font-weight:bold">COMIS:</span> S/${boleta.comision.toFixed(2).padStart(10)}</div>
-                <div style="font-weight:bold"><span>TOTAL:</span> S/${boleta.total.toFixed(2).padStart(10)}</div>
-            </div>
-            
-            <!-- Línea separadora -->
-            <div style="border-top:1px dashed #000; margin:2px 0"></div>
+            <!-- Separador final -->
+            <div style="border-top:1px dashed #000; margin:5px 0"></div>
             
             <!-- Pie de página -->
-            <div style="text-align:center; font-size:9px; margin-top:3px">
+            <div style="font-size:9px; margin-top:3px">
                 <div>Agua, luz, gas, cable, telefonía</div>
                 <div>Recargas virtuales, cosméticos y más</div>
                 <div style="margin-top:2px">Gracias por su visita</div>
@@ -195,8 +210,8 @@
         </div>
     `;
     
-    // Crear ventana de impresión
-    const ventana = window.open('', '_blank', 'width=80,height=200');
+    // Ventana de impresión
+    const ventana = window.open('', '_blank');
     ventana.document.write(`
         <!DOCTYPE html>
         <html>
