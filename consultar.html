@@ -130,107 +130,136 @@
             alert(detalle);
         }
 
-function imprimirBoleta(index) {
-    const boletas = JSON.parse(localStorage.getItem('boletas'));
-    const boleta = boletas[index];
+function imprimirBoleta(id) {
+    fetch('obtener_boletas.php')
+        .then(response => response.json())
+        .then(boletas => {
+            const boleta = boletas.find(b => b.id == id);
+            if (!boleta) {
+                alert('Boleta no encontrada');
+                return;
+            }
 
-    // Función para dividir el nombre si es necesario
-    const dividirNombre = (nombreCompleto) => {
-        nombreCompleto = nombreCompleto.toUpperCase();
-        const partes = nombreCompleto.split(' ');
-        if(partes.length > 2) {
-            return `${partes.slice(0, 2).join(' ')}<br>${partes.slice(2).join(' ')}`;
-        }
-        return nombreCompleto;
-    };
-
-    const contenido = `
-    <div style="width:100%; max-width:800px; margin:0 auto; font-family:Arial; font-size:18px; line-height:1.8">
-        <h1 style="font-size:28px; font-weight:bold; text-align:center; margin-bottom:20px">INCTECSA</h1>
-        <p style="text-align:center; margin-bottom:15px; font-size:20px">${boleta.fechaHora}</p>
-        <p style="text-align:center; margin-bottom:30px; font-size:20px">Av. Independencia 247</p>
-        
-        <div style="margin-bottom:30px; border-bottom:1px dashed #ccc; padding-bottom:20px">
-            <div style="display:flex; margin-bottom:15px">
-                <div style="width:150px; font-weight:bold">Operación:</div>
-                <div>${boleta.operacion}</div>
-            </div>
-            <div style="display:flex; margin-bottom:15px">
-                <div style="width:150px; font-weight:bold">Negocio:</div>
-                <div>${boleta.negocio.toUpperCase()}</div>
-            </div>
-            <div style="display:flex; margin-bottom:15px">
-                <div style="width:150px; font-weight:bold">Servicio:</div>
-                <div>${boleta.servicio.toUpperCase()}</div>
-            </div>
-            <div style="display:flex; margin-bottom:15px">
-                <div style="width:150px; font-weight:bold">Empresa:</div>
-                <div>${boleta.empresa.toUpperCase()}</div>
-            </div>
-            <div style="display:flex; margin-bottom:15px">
-                <div style="width:150px; font-weight:bold">Cliente:</div>
-                <div>${dividirNombre(boleta.cliente)}</div>
-            </div>
-            <div style="display:flex; margin-bottom:15px">
-                <div style="width:150px; font-weight:bold">Código:</div>
-                <div>${boleta.codigo || 'N/A'}</div>
-            </div>
-        </div>
-        
-        <div style="margin-bottom:40px">
-            <div style="display:flex; margin-bottom:20px">
-                <div style="width:150px; font-weight:bold">Monto:</div>
-                <div>S/ ${boleta.monto.toFixed(2)}</div>
-            </div>
-            <div style="display:flex; margin-bottom:20px">
-                <div style="width:150px; font-weight:bold">Comisión:</div>
-                <div>S/ ${boleta.comision.toFixed(2)}</div>
-            </div>
-            <div style="display:flex; margin-bottom:20px; font-size:22px; font-weight:bold">
-                <div style="width:150px">TOTAL:</div>
-                <div>S/ ${boleta.total.toFixed(2)}</div>
-            </div>
-        </div>
-        
-        <div style="text-align:center; font-size:18px; margin-top:50px; margin-bottom:30px">
-            <p style="margin-bottom:15px">Agua, luz, gas, cable, telefonía</p>
-            <p style="margin-bottom:15px">recargas virtuales, cosméticos y más...</p>
-            <p style="margin-top:30px; margin-bottom:15px">Gracias por su visita</p>
-            <p style="font-weight:bold; margin-top:20px; font-size:20px">CURSOS DE INGENIERÍA & GESTIÓN</p>
-        </div>
-        
-        <!-- Espacio adicional para hacer más larga la boleta -->
-        <div style="height:100px;"></div>
-    </div>
-    `;
-    
-    const ventana = window.open('', '_blank');
-    ventana.document.write(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Boleta ${boleta.operacion}</title>
-            <style>
-                @media print {
-                    @page {
-                        margin: 20mm;
-                        size: auto;
-                    }
-                    body {
-                        margin: 0;
-                        padding: 0;
-                        -webkit-print-color-adjust: exact;
-                        print-color-adjust: exact;
-                    }
+            // Función para dividir el nombre si es necesario
+            const dividirNombre = (nombreCompleto) => {
+                nombreCompleto = nombreCompleto.toUpperCase();
+                const partes = nombreCompleto.split(' ');
+                if(partes.length > 2) {
+                    return `${partes.slice(0, 2).join(' ')}\n${partes.slice(2).join(' ')}`;
                 }
-            </style>
-        </head>
-        <body style="margin:0;padding:20px" onload="window.print();setTimeout(()=>{window.close()},1000)">
-        ${contenido}
-        </body>
-        </html>
-    `);
-    ventana.document.close();
+                return nombreCompleto;
+            };
+
+            // Formato específico para impresoras térmicas
+            const contenido = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Boleta ${boleta.operacion}</title>
+                    <style>
+                        @page {
+                            size: 80mm 200mm;
+                            margin: 0;
+                            padding: 0;
+                        }
+                        body {
+                            font-family: 'Courier New', monospace;
+                            font-size: 12px;
+                            width: 80mm;
+                            margin: 0;
+                            padding: 5mm;
+                            line-height: 1.2;
+                        }
+                        .centrado {
+                            text-align: center;
+                            width: 100%;
+                        }
+                        .negrita {
+                            font-weight: bold;
+                        }
+                        .separador {
+                            border-top: 1px dashed #000;
+                            margin: 5px 0;
+                        }
+                        .doble-negrita {
+                            font-weight: bold;
+                            font-size: 14px;
+                        }
+                        .espacio-superior {
+                            margin-top: 10px;
+                        }
+                    </style>
+                </head>
+                <body onload="window.print();setTimeout(()=>{window.close()},1000)">
+                    <div class="centrado negrita" style="font-size: 16px;">INCTECSA</div>
+                    <div class="centrado">${formatDateTime(boleta.fecha_hora)}</div>
+                    <div class="centrado">Av. Independencia 247</div>
+                    
+                    <div class="separador"></div>
+                    
+                    <div>
+                        <span class="negrita">Operación:</span> ${boleta.operacion}
+                    </div>
+                    <div>
+                        <span class="negrita">Negocio:</span> ${boleta.negocio.toUpperCase()}
+                    </div>
+                    <div>
+                        <span class="negrita">Servicio:</span> ${boleta.servicio.toUpperCase()}
+                    </div>
+                    <div>
+                        <span class="negrita">Empresa:</span> ${boleta.empresa.toUpperCase()}
+                    </div>
+                    <div>
+                        <span class="negrita">Cliente:</span> ${dividirNombre(boleta.cliente)}
+                    </div>
+                    <div>
+                        <span class="negrita">Código:</span> ${boleta.codigo || 'N/A'}
+                    </div>
+                    
+                    <div class="separador espacio-superior"></div>
+                    
+                    <div>
+                        <span class="negrita">Monto:</span> S/ ${parseFloat(boleta.monto).toFixed(2)}
+                    </div>
+                    <div>
+                        <span class="negrita">Comisión:</span> S/ ${parseFloat(boleta.comision).toFixed(2)}
+                    </div>
+                    <div class="doble-negrita">
+                        <span>TOTAL:</span> S/ ${parseFloat(boleta.total).toFixed(2)}
+                    </div>
+                    
+                    <div class="separador espacio-superior"></div>
+                    
+                    <div class="centrado espacio-superior">
+                        <div>Agua, luz, gas, cable, telefonía</div>
+                        <div>recargas virtuales, cosméticos y más...</div>
+                        <div class="espacio-superior">Gracias por su visita</div>
+                        <div class="negrita espacio-superior">CURSOS DE INGENIERÍA & GESTIÓN</div>
+                    </div>
+                </body>
+                </html>
+            `;
+            
+            const ventana = window.open('', '_blank');
+            ventana.document.write(contenido);
+            ventana.document.close();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al obtener la boleta para imprimir');
+        });
+}
+
+function formatDateTime(dateTimeString) {
+    const options = { 
+        day: '2-digit', 
+        month: '2-digit', 
+        year: 'numeric', 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: false
+    };
+    return new Date(dateTimeString).toLocaleString('es-PE', options);
 }
         // Eliminar boleta
         function eliminarBoleta(index) {
