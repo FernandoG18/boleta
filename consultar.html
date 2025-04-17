@@ -130,115 +130,96 @@
             alert(detalle);
         }
 
-                function imprimirBoleta(index) {
-    const boletas = JSON.parse(localStorage.getItem('boletas'));
-    const boleta = boletas[index];
-
-    // Función para dividir texto en líneas
-    const dividirTexto = (texto, maxCaracteres = 20) => {
-        texto = texto.toUpperCase();
-        if(texto.length <= maxCaracteres) return [texto];
-        
-        const palabras = texto.split(' ');
-        const lineas = [];
-        let lineaActual = '';
-        
-        palabras.forEach(palabra => {
-            if((lineaActual + ' ' + palabra).length <= maxCaracteres) {
-                lineaActual += (lineaActual ? ' ' : '') + palabra;
-            } else {
-                lineas.push(lineaActual);
-                lineaActual = palabra;
+                       function imprimirBoleta(id) {
+    fetch('obtener_boletas.php')
+        .then(response => response.json())
+        .then(boletas => {
+            const boleta = boletas.find(b => b.id == id);
+            if (!boleta) {
+                alert('Boleta no encontrada');
+                return;
             }
+
+            const dividirNombre = (nombreCompleto) => {
+                nombreCompleto = nombreCompleto.toUpperCase();
+                const partes = nombreCompleto.split(' ');
+                if (partes.length > 2) {
+                    return `${partes.slice(0, 2).join(' ')}<br>${partes.slice(2).join(' ')}`;
+                }
+                return nombreCompleto;
+            };
+
+            const contenido = `
+                <div style="width:100%; max-width:300px; margin:0 auto; font-family:'Courier New', monospace; font-size:12px; line-height:1.4"><br>
+                 <br>   <div style="text-align:center; font-size:16px;; margin-bottom:10px">INCTECSA</div> <br>
+                   <br> <div style="text-align:center; margin-bottom:5px">${formatDateTime(boleta.fecha_hora)}</div><br>
+                    <div style="text-align:center; margin-bottom:10px">Av. Independencia 247</div>
+                    <div style="text-align:center">----------DESCRIPCION-----------</div>
+            
+                    <div style="margin:10px 0">
+                        <div><strong>Operacion:</strong> ${boleta.operacion}</div>
+                        <div><strong>Negocio:</strong> ${boleta.negocio.toUpperCase()}</div>
+                        <div><strong>Servicio:</strong> ${boleta.servicio.toUpperCase()}</div>
+                        <div><strong>Empresa:</strong> ${boleta.empresa.toUpperCase()}</div>
+                        <div><strong>Cliente:</strong> ${dividirNombre(boleta.cliente)}</div>
+                        <div><strong>Código:</strong> ${boleta.codigo || 'N/A'}</div>
+                    </div>
+
+                    <div style="text-align:center">------------COSTOS--------------</div>
+
+                    <div style="margin:10px 0">
+                        <div><strong>Monto:</strong>     S/ ${parseFloat(boleta.monto).toFixed(2)}</div>
+                        <div><strong>Comisión:</strong>  S/ ${parseFloat(boleta.comision).toFixed(2)}</div>
+                        <div style="font-weight:bold"><strong>TOTAL:</strong>    S/ ${parseFloat(boleta.total).toFixed(2)}</div>
+                    </div>
+
+                    <div style="text-align:center">-------------------------------</div>
+
+                    <div style="text-align:center; margin:15px 0">
+                        <div>Agua, luz, gas, cable,</div>
+                        <div>telefonica, recargas, mas...</div>
+                         <div style="text-align:center">--------------------------------</div>
+                        <div>Gracias por su visita</div>
+                        <div style="margin-top:10px; font-weight:bold">CURSOS DE INGENIERIA & GESTION</div> 
+                    </div>
+                    <div style="text-align:center">----------------------------------</div>
+                </div>
+                `;
+
+                            const ventana = window.open('', '_blank');
+                            ventana.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Boleta ${boleta.operacion}</title>
+                    <style>
+                        @media print {
+                            @page {
+                                margin: 0;
+                                size: auto;
+                            }
+                            body {
+                                margin: 0;
+                                padding: 0;
+                                -webkit-print-color-adjust: exact;
+                                print-color-adjust: exact;
+                            }
+                        }
+                    </style>
+                </head>
+                <body onload="window.print();setTimeout(()=>{window.close()},1000)">
+                ${contenido}
+                </body>
+                </html>
+            `);
+            ventana.document.close();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al obtener la boleta para imprimir');
         });
-        
-        if(lineaActual) lineas.push(lineaActual);
-        return lineas;
-    };
-
-    // Preparamos los datos
-    const fechaHora = boleta.fechaHora.length > 16 ? boleta.fechaHora.substring(0, 16) : boleta.fechaHora;
-    const lineasNombre = dividirTexto(boleta.cliente);
-    const lineasEmpresa = dividirTexto(boleta.empresa);
-    const lineasServicio = dividirTexto(boleta.servicio);
-
-    // Contenido con alineación perfecta
-    const contenido = `
-        <div style="width:72mm; margin:0 auto; font-family:'Courier New',monospace; font-size:10px; line-height:1.2; text-align:center">
-            <!-- Encabezado -->
-            <div style="margin-bottom:3px">
-                <div style="font-weight:bold; font-size:12px">INCTECSA</div>
-                <div>${fechaHora}</div>
-                <div>Av. Independencia 247</div>
-            </div>
-            
-            <!-- Separador -->
-            <div style="border-top:1px dashed #000; margin:5px 0"></div>
-            
-            <!-- Bloque de datos alineados -->
-            <div style="display:inline-block; text-align:left; margin-bottom:3px">
-                <!-- Campos superiores -->
-                <div><span style="display:inline-block; width:65px; text-align:left">operacion:</span> ${boleta.operacion}</div>
-                <div><span style="display:inline-block; width:65px; text-align:left">negocio:</span> ${boleta.negocio.toUpperCase()}</div>
-                <div><span style="display:inline-block; width:65px; text-align:left">servicio:</span> ${lineasServicio[0]}</div>
-                ${lineasServicio.length > 1 ? `<div style="margin-left:65px">${lineasServicio[1]}</div>` : ''}
-                <div><span style="display:inline-block; width:65px; text-align:left">empresa:</span> ${lineasEmpresa[0]}</div>
-                ${lineasEmpresa.length > 1 ? `<div style="margin-left:65px">${lineasEmpresa[1]}</div>` : ''}
-                <div><span style="display:inline-block; width:65px; text-align:left">cliente:</span> ${lineasNombre[0]}</div>
-                ${lineasNombre.length > 1 ? `<div style="margin-left:65px">${lineasNombre[1]}</div>` : ''}
-                <div><span style="display:inline-block; width:65px; text-align:left">codigo:</span> ${boleta.codigo || 'N/A'}</div>
-                
-                <!-- Separador interno -->
-                <div style="border-top:1px dashed #000; margin:5px 0"></div>
-                
-                <!-- Montos con la misma alineación -->
-                <div><span style="display:inline-block; width:65px; text-align:left">monto:</span> S/${boleta.monto.toFixed(2)}</div>
-                <div><span style="display:inline-block; width:65px; text-align:left">comision:</span> S/${boleta.comision.toFixed(2)}</div>
-                <div><span style="display:inline-block; width:65px; text-align:left">total:</span> S/${boleta.total.toFixed(2)}</div>
-            </div>
-            
-            <!-- Separador final -->
-            <div style="border-top:1px dashed #000; margin:5px 0"></div>
-            
-            <!-- Pie de página -->
-            <div style="font-size:9px; margin-top:3px">
-                <div>Agua, luz, gas, cable, telefonía</div>
-                <div>Recargas virtuales, cosméticos y más</div>
-                <div style="margin-top:2px">Gracias por su visita</div>
-                <div style="font-weight:bold">CURSOS DE INGENIERÍA & GESTIÓN</div>
-            </div>
-        </div>
-    `;
-    
-    // Ventana de impresión
-    const ventana = window.open('', '_blank');
-    ventana.document.write(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Boleta ${boleta.operacion}</title>
-            <style>
-                @page {
-                    size: 72mm auto;
-                    margin: 0;
-                    padding: 0;
-                }
-                body {
-                    margin: 0;
-                    padding: 2mm;
-                    font-family: 'Courier New', monospace;
-                    -webkit-print-color-adjust: exact;
-                    print-color-adjust: exact;
-                }
-            </style>
-        </head>
-        <body onload="window.print(); setTimeout(() => { window.close(); }, 200);">
-            ${contenido}
-        </body>
-        </html>
-    `);
-    ventana.document.close();
 }
+
         // Eliminar boleta
         function eliminarBoleta(index) {
             if (confirm('¿Está seguro que desea eliminar esta boleta?')) {
