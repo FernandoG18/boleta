@@ -22,6 +22,47 @@
             </div>
         </div>
         
+        <!-- Filtros y Buscador -->
+        <div class="bg-white p-4 shadow-md">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <!-- Filtro por Negocio -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Filtrar por Negocio:</label>
+                    <select id="filtroNegocio" onchange="filtrarBoletas()" class="w-full border border-gray-300 rounded px-3 py-2">
+                        <option value="">Todos los negocios</option>
+                        <option value="CESTYS PERÚ">CESTYS PERÚ</option>
+                        <option value="INCITECSA">INCITECSA</option>
+                    </select>
+                </div>
+                
+                <!-- Buscador General -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Buscar:</label>
+                    <div class="relative">
+                        <input type="text" id="buscador" placeholder="Buscar en todas las boletas..." 
+                               class="w-full border border-gray-300 rounded px-3 py-2 pl-10"
+                               oninput="filtrarBoletas()">
+                        <div class="absolute left-3 top-2.5 text-gray-400">
+                            <i class="fas fa-search"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Filtro por Fecha -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Filtrar por Fecha:</label>
+                    <input type="date" id="filtroFecha" onchange="filtrarBoletas()" class="w-full border border-gray-300 rounded px-3 py-2">
+                </div>
+            </div>
+            
+            <div class="flex justify-between items-center text-sm text-gray-500">
+                <div id="contadorBoletas">Mostrando 0 boletas</div>
+                <button onclick="resetearFiltros()" class="text-blue-600 hover:text-blue-800">
+                    <i class="fas fa-times-circle mr-1"></i>Limpiar filtros
+                </button>
+            </div>
+        </div>
+        
         <!-- Boletas Table -->
         <div class="bg-white shadow-lg rounded-b-lg overflow-hidden">
             <div class="overflow-x-auto">
@@ -30,6 +71,7 @@
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Operación</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha/Hora</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Negocio</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Servicio</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monto</th>
@@ -46,11 +88,14 @@
         
         <!-- Footer -->
         <div class="bg-gray-200 p-3 text-center text-sm text-gray-600 mt-4 rounded-lg">
-            <p>Copyright 2024 | INCTECSA | Reservados todos los derechos</p>
+            <p>Copyright 2024 | INCITECSA | Reservados todos los derechos</p>
         </div>
     </div>
 
     <script>
+        // Variables globales
+        let todasLasBoletas = [];
+        
         // Función para dividir nombres largos en dos líneas
         function dividirNombre(nombreCompleto) {
             const partes = nombreCompleto.split(' ');
@@ -65,22 +110,44 @@
 
         // Cargar y mostrar boletas al abrir la página
         document.addEventListener('DOMContentLoaded', function() {
-            cargarBoletas();
+            // Limpiar formatos de fecha existentes (solo necesario una vez)
+            limpiarFormatosFecha();
+            
+            todasLasBoletas = JSON.parse(localStorage.getItem('boletas')) || [];
+            cargarBoletas(todasLasBoletas);
         });
 
-        // Cargar boletas desde localStorage
-        function cargarBoletas() {
+        // Función para limpiar formatos de fecha (ejecutar solo una vez)
+        function limpiarFormatosFecha() {
             const boletas = JSON.parse(localStorage.getItem('boletas')) || [];
+            let necesitaActualizar = false;
+            
+            boletas.forEach(boleta => {
+                if (boleta.fechaHora.includes(' / ')) {
+                    // Limpiar formato antiguo (con espacios)
+                    boleta.fechaHora = boleta.fechaHora.replace(/\s/g, '');
+                    necesitaActualizar = true;
+                }
+            });
+            
+            if (necesitaActualizar) {
+                localStorage.setItem('boletas', JSON.stringify(boletas));
+            }
+        }
+
+        // Cargar boletas en la tabla
+        function cargarBoletas(boletas) {
             const tableBody = document.getElementById('boletasTable');
             
             if (boletas.length === 0) {
                 tableBody.innerHTML = `
                     <tr>
-                        <td colspan="7" class="px-6 py-4 text-center text-gray-500">
-                            No hay boletas guardadas
+                        <td colspan="8" class="px-6 py-4 text-center text-gray-500">
+                            No se encontraron boletas
                         </td>
                     </tr>
                 `;
+                document.getElementById('contadorBoletas').textContent = 'Mostrando 0 boletas';
                 return;
             }
             
@@ -91,7 +158,8 @@
                 row.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
                 row.innerHTML = `
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${boleta.operacion}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${boleta.fechaHora}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatearFechaParaMostrar(boleta.fechaHora)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${boleta.negocio}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${boleta.servicio}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${dividirNombre(boleta.cliente)}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">S/ ${boleta.monto.toFixed(2)}</td>
@@ -106,18 +174,93 @@
                 `;
                 tableBody.appendChild(row);
             });
+            
+            document.getElementById('contadorBoletas').textContent = `Mostrando ${boletas.length} boleta${boletas.length !== 1 ? 's' : ''}`;
+        }
+
+        // Formatear fecha para mostrar (DD/MM/AAAA HH:mm -> DD/MM/AAAA HH:mm)
+        function formatearFechaParaMostrar(fecha) {
+            // Si ya está en formato correcto, devolver tal cual
+            if (/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}$/.test(fecha)) {
+                return fecha;
+            }
+            
+            // Si está en formato compacto (DDMMAAAAHHmm)
+            if (/^\d{12}$/.test(fecha.replace(/\D/g, ''))) {
+                const limpia = fecha.replace(/\D/g, '');
+                return `${limpia.substr(0,2)}/${limpia.substr(2,2)}/${limpia.substr(4,4)} ${limpia.substr(8,2)}:${limpia.substr(10,2)}`;
+            }
+            
+            // Formato por defecto
+            return fecha;
+        }
+
+        function filtrarBoletas() {
+    const filtroNegocio = document.getElementById('filtroNegocio').value.toLowerCase();
+    const terminoBusqueda = document.getElementById('buscador').value.toLowerCase();
+    const filtroFecha = document.getElementById('filtroFecha').value;
+    
+    const boletasFiltradas = todasLasBoletas.filter(boleta => {
+        // Filtro por negocio
+        if (filtroNegocio && boleta.negocio.toLowerCase() !== filtroNegocio) {
+            return false;
+        }
+        
+        // Filtro por fecha (CORRECCIÓN CLAVE)
+        if (filtroFecha) {
+            // Extraer día, mes y año de la fecha guardada (formato DD/MM/AAAA HH:mm)
+            const [dia, mes, anio] = boleta.fechaHora.split(' ')[0].split('/');
+            
+            // Formatear a AAAA-MM-DD para comparar
+            const fechaBoletaFormateada = `${anio}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}`;
+            
+            if (fechaBoletaFormateada !== filtroFecha) {
+                return false;
+            }
+        }
+        
+        // Búsqueda general
+        if (terminoBusqueda) {
+            const camposABuscar = [
+                boleta.operacion,
+                boleta.fechaHora,
+                boleta.negocio,
+                boleta.servicio,
+                boleta.empresa,
+                boleta.cliente,
+                boleta.codigo,
+                boleta.monto.toString(),
+                boleta.total.toString()
+            ].join(' ').toLowerCase();
+            
+            if (!camposABuscar.includes(terminoBusqueda)) {
+                return false;
+            }
+        }
+        
+        return true;
+    });
+    
+    cargarBoletas(boletasFiltradas);
+}
+
+        // Resetear filtros
+        function resetearFiltros() {
+            document.getElementById('filtroNegocio').value = '';
+            document.getElementById('buscador').value = '';
+            document.getElementById('filtroFecha').value = '';
+            cargarBoletas(todasLasBoletas);
         }
 
         // Ver detalle de boleta
         function verDetalle(index) {
-            const boletas = JSON.parse(localStorage.getItem('boletas'));
-            const boleta = boletas[index];
+            const boleta = todasLasBoletas[index];
             
             let detalle = `
                 Operación: ${boleta.operacion}\n
                 Negocio: ${boleta.negocio}\n
                 Dirección: ${boleta.direccion}\n
-                Fecha/Hora: ${boleta.fechaHora}\n
+                Fecha/Hora: ${formatearFechaParaMostrar(boleta.fechaHora)}\n
                 Servicio: ${boleta.servicio}\n
                 Empresa: ${boleta.empresa}\n
                 Cliente: ${boleta.cliente}\n
@@ -130,95 +273,94 @@
             alert(detalle);
         }
 
-    function imprimirBoleta(index) {
-    const boletas = JSON.parse(localStorage.getItem('boletas')) || [];
-    const boleta = boletas[index];
-    
-    if (!boleta) {
-        alert('Boleta no encontrada');
-        return;
-    }
+        function imprimirBoleta(index) {
+            const boleta = todasLasBoletas[index];
+            
+            if (!boleta) {
+                alert('Boleta no encontrada');
+                return;
+            }
 
-    const dividirNombre = (nombreCompleto) => {
-        const partes = nombreCompleto.split(' ');
-        if (partes.length > 2) {
-            return `${partes.slice(0, 2).join(' ')}<br>${partes.slice(2).join(' ')}`;
-        }
-        return nombreCompleto;
-    };
-
-    const contenido = `
-        <div style="width:100%; max-width:300px; margin:0 auto; font-family:'Courier New', monospace; font-size:12px; line-height:1.4"><br>
-            <div style="text-align:center; font-size:16px; margin-bottom:10px">${boleta.negocio}</div><br>
-            <div style="text-align:center; margin-bottom:5px">${boleta.fechaHora}</div><br>
-            <div style="text-align:center; margin-bottom:10px">${boleta.direccion}</div>
-            <div style="text-align:center">----------DESCRIPCION-----------</div>
-    
-            <div style="margin:10px 0">
-                <div><strong>Operacion:</strong> ${boleta.operacion}</div>
-                <div><strong>Negocio:</strong> ${boleta.negocio}</div>
-                <div><strong>Servicio:</strong> ${boleta.servicio}</div>
-                <div><strong>Empresa:</strong> ${boleta.empresa}</div>
-                <div><strong>Cliente:</strong> ${dividirNombre(boleta.cliente)}</div>
-                <div><strong>Código:</strong> ${boleta.codigo || 'N/A'}</div>
-            </div>
-
-            <div style="text-align:center">------------COSTOS--------------</div>
-
-            <div style="margin:10px 0">
-                <div><strong>Monto:</strong>     S/ ${parseFloat(boleta.monto).toFixed(2)}</div>
-                <div><strong>Comisión:</strong>  S/ ${parseFloat(boleta.comision).toFixed(2)}</div>
-                <div style="font-weight:bold"><strong>TOTAL:</strong>    S/ ${parseFloat(boleta.total).toFixed(2)}</div>
-            </div>
-
-            <div style="text-align:center">-------------------------------</div>
-
-            <div style="text-align:center; margin:15px 0">
-                <div>Agua, luz, gas, cable,</div>
-                <div>telefonica, recargas, mas...</div>
-                <div style="text-align:center">--------------------------------</div>
-                <div>Gracias por su visita</div>
-                <div style="margin-top:10px; font-weight:bold">CURSOS DE INGENIERIA & GESTION</div> 
-            </div>
-            <div style="text-align:center">----------------------------------</div>
-        </div>
-    `;
-
-    const ventana = window.open('', '_blank');
-    ventana.document.write(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Boleta ${boleta.operacion}</title>
-            <style>
-                @media print {
-                    @page {
-                        margin: 0;
-                        size: auto;
-                    }
-                    body {
-                        margin: 0;
-                        padding: 0;
-                        -webkit-print-color-adjust: exact;
-                        print-color-adjust: exact;
-                    }
+            const dividirNombre = (nombreCompleto) => {
+                const partes = nombreCompleto.split(' ');
+                if (partes.length > 2) {
+                    return `${partes.slice(0, 2).join(' ')}<br>${partes.slice(2).join(' ')}`;
                 }
-            </style>
-        </head>
-        <body onload="window.print();setTimeout(()=>{window.close()},1000)">
-        ${contenido}
-        </body>
-        </html>
-    `);
-    ventana.document.close();
-}
+                return nombreCompleto;
+            };
+
+            const contenido = `
+                <div style="width:100%; max-width:300px; margin:0 auto; font-family:'Courier New', monospace; font-size:12px; line-height:1.4"><br>
+                    <div style="text-align:center; font-size:16px; margin-bottom:10px">${boleta.negocio}</div><br>
+                    <div style="text-align:center; margin-bottom:5px">${formatearFechaParaMostrar(boleta.fechaHora)}</div><br>
+                    <div style="text-align:center; margin-bottom:10px">${boleta.direccion}</div>
+                    <div style="text-align:center">----------DESCRIPCION-----------</div>
+            
+                    <div style="margin:10px 0">
+                        <div><strong>Operacion:</strong> ${boleta.operacion}</div>
+                        <div><strong>Negocio:</strong> ${boleta.negocio}</div>
+                        <div><strong>Servicio:</strong> ${boleta.servicio}</div>
+                        <div><strong>Empresa:</strong> ${boleta.empresa}</div>
+                        <div><strong>Cliente:</strong> ${dividirNombre(boleta.cliente)}</div>
+                        <div><strong>Código:</strong> ${boleta.codigo || 'N/A'}</div>
+                    </div>
+
+                    <div style="text-align:center">------------COSTOS--------------</div>
+
+                    <div style="margin:10px 0">
+                        <div><strong>Monto:</strong>     S/ ${parseFloat(boleta.monto).toFixed(2)}</div>
+                        <div><strong>Comisión:</strong>  S/ ${parseFloat(boleta.comision).toFixed(2)}</div>
+                        <div style="font-weight:bold"><strong>TOTAL:</strong>    S/ ${parseFloat(boleta.total).toFixed(2)}</div>
+                    </div>
+
+                    <div style="text-align:center">-------------------------------</div>
+
+                    <div style="text-align:center; margin:15px 0">
+                        <div>Agua, luz, gas, cable,</div>
+                        <div>telefonica, recargas, mas...</div>
+                        <div style="text-align:center">--------------------------------</div>
+                        <div>Gracias por su visita</div>
+                        <div style="margin-top:10px; font-weight:bold">CURSOS DE INGENIERIA & GESTION</div> 
+                    </div>
+                    <div style="text-align:center">----------------------------------</div>
+                </div>
+            `;
+
+            const ventana = window.open('', '_blank');
+            ventana.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Boleta ${boleta.operacion}</title>
+                    <style>
+                        @media print {
+                            @page {
+                                margin: 0;
+                                size: auto;
+                            }
+                            body {
+                                margin: 0;
+                                padding: 0;
+                                -webkit-print-color-adjust: exact;
+                                print-color-adjust: exact;
+                            }
+                        }
+                    </style>
+                </head>
+                <body onload="window.print();setTimeout(()=>{window.close()},1000)">
+                ${contenido}
+                </body>
+                </html>
+            `);
+            ventana.document.close();
+        }
+
         // Eliminar boleta
         function eliminarBoleta(index) {
             if (confirm('¿Está seguro que desea eliminar esta boleta?')) {
-                const boletas = JSON.parse(localStorage.getItem('boletas'));
-                boletas.splice(index, 1);
-                localStorage.setItem('boletas', JSON.stringify(boletas));
-                cargarBoletas();
+                todasLasBoletas.splice(index, 1);
+                localStorage.setItem('boletas', JSON.stringify(todasLasBoletas));
+                filtrarBoletas(); // Actualizar la vista con los filtros aplicados
             }
         }
 
