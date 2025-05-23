@@ -136,18 +136,18 @@
     </div>
 
     <script>
-        // Mostrar fecha y hora actual
         function actualizarFechaHora() {
-            const ahora = new Date();
-            const dia = ahora.getDate().toString().padStart(2, '0');
-            const mes = (ahora.getMonth() + 1).toString().padStart(2, '0');
-            const año = ahora.getFullYear();
-            const horas = ahora.getHours().toString().padStart(2, '0');
-            const minutos = ahora.getMinutes().toString().padStart(2, '0');
-            
-            document.getElementById('fechaHora').textContent = 
-                `${dia} / ${mes} / ${año}  ${horas} : ${minutos}`;
-        }
+    const ahora = new Date();
+    const dia = ahora.getDate().toString().padStart(2, '0');
+    const mes = (ahora.getMonth() + 1).toString().padStart(2, '0');
+    const año = ahora.getFullYear();
+    const horas = ahora.getHours().toString().padStart(2, '0');
+    const minutos = ahora.getMinutes().toString().padStart(2, '0');
+    
+    // Guardar en formato DD/MM/AAAA HH:mm (sin espacios extras)
+    document.getElementById('fechaHora').textContent = 
+        `${dia}/${mes}/${año} ${horas}:${minutos}`;
+}
 
         // Mostrar campo para escribir cuando se selecciona "Otro" en servicio
         function mostrarInputServicio() {
