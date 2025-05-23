@@ -12,7 +12,7 @@
         <!-- Header -->
         <div class="bg-blue-600 text-white p-4 rounded-t-lg">
             <div class="flex justify-between items-center">
-                <h1 class="text-2xl font-bold">INCTECSA - Boletas Guardadas</h1>
+                <h1 class="text-2xl font-bold">INCITECSA - Boletas Guardadas</h1>
                 <button onclick="window.location.href='boleta.html'" class="bg-white text-blue-600 px-4 py-2 rounded hover:bg-gray-100 transition">
                     Volver al Formulario
                 </button>
@@ -130,7 +130,7 @@
             alert(detalle);
         }
 
-                    function imprimirBoleta(index) {
+    function imprimirBoleta(index) {
     const boletas = JSON.parse(localStorage.getItem('boletas')) || [];
     const boleta = boletas[index];
     
@@ -140,7 +140,6 @@
     }
 
     const dividirNombre = (nombreCompleto) => {
-        nombreCompleto = nombreCompleto.toUpperCase();
         const partes = nombreCompleto.split(' ');
         if (partes.length > 2) {
             return `${partes.slice(0, 2).join(' ')}<br>${partes.slice(2).join(' ')}`;
@@ -148,23 +147,18 @@
         return nombreCompleto;
     };
 
-    const formatDateTime = (dateTime) => {
-        // Asumiendo que fechaHora ya está en el formato correcto
-        return dateTime;
-    };
-
     const contenido = `
         <div style="width:100%; max-width:300px; margin:0 auto; font-family:'Courier New', monospace; font-size:12px; line-height:1.4"><br>
-         <br>   <div style="text-align:center; font-size:16px;; margin-bottom:10px">INCTECSA</div> <br>
-           <br> <div style="text-align:center; margin-bottom:5px">${formatDateTime(boleta.fechaHora)}</div><br>
-            <div style="text-align:center; margin-bottom:10px">Av. Independencia 257</div>
+            <div style="text-align:center; font-size:16px; margin-bottom:10px">${boleta.negocio}</div><br>
+            <div style="text-align:center; margin-bottom:5px">${boleta.fechaHora}</div><br>
+            <div style="text-align:center; margin-bottom:10px">${boleta.direccion}</div>
             <div style="text-align:center">----------DESCRIPCION-----------</div>
     
             <div style="margin:10px 0">
                 <div><strong>Operacion:</strong> ${boleta.operacion}</div>
-                <div><strong>Negocio:</strong> ${boleta.negocio.toUpperCase()}</div>
-                <div><strong>Servicio:</strong> ${boleta.servicio.toUpperCase()}</div>
-                <div><strong>Empresa:</strong> ${boleta.empresa.toUpperCase()}</div>
+                <div><strong>Negocio:</strong> ${boleta.negocio}</div>
+                <div><strong>Servicio:</strong> ${boleta.servicio}</div>
+                <div><strong>Empresa:</strong> ${boleta.empresa}</div>
                 <div><strong>Cliente:</strong> ${dividirNombre(boleta.cliente)}</div>
                 <div><strong>Código:</strong> ${boleta.codigo || 'N/A'}</div>
             </div>
@@ -182,7 +176,7 @@
             <div style="text-align:center; margin:15px 0">
                 <div>Agua, luz, gas, cable,</div>
                 <div>telefonica, recargas, mas...</div>
-                 <div style="text-align:center">--------------------------------</div>
+                <div style="text-align:center">--------------------------------</div>
                 <div>Gracias por su visita</div>
                 <div style="margin-top:10px; font-weight:bold">CURSOS DE INGENIERIA & GESTION</div> 
             </div>
